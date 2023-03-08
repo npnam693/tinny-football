@@ -15,6 +15,9 @@ const int BAR_HEIGHT = 20;
 const int FRAME_RATE = 60;
 const int FRAME_TIME = 1000 / FRAME_RATE;
 
+void OnePlayer();
+void TwoPlayer();
+
 
 //Loads individual image as texture
 SDL_Texture* loadTexture( std::string path );
@@ -123,6 +126,137 @@ void close() {
 	SDL_Quit();
 }
 
+void OnePlayer()
+{
+	bool game_running = true;
+        SDL_Event e;
+		int player1Point = 0;
+		int player2Point = 0;
+
+        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+        SDL_RenderClear( gRenderer );
+        SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
+        
+        SDL_Rect ballRect = {215, 390, 20, 20};
+        SDL_Rect player1Rect = {15, 930, BAR_WIDTH, BAR_HEIGHT };
+        SDL_Rect player2Rect = {250, 0, BAR_WIDTH, BAR_HEIGHT};
+
+        SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
+                
+        int acceX = 5;
+        int acceY = 5;
+		int touchNum = 0;
+
+        while(game_running) {
+            Uint32 startTime = SDL_GetTicks();
+			const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+			int acceeX = 0;
+            while( SDL_PollEvent( &e ) != 0 ){
+                if( e.type == SDL_QUIT ) {
+                    game_running = false;
+                }
+            }
+
+			if (state[SDL_SCANCODE_LEFT]){
+				if (player1Rect.x >  15)
+				{
+					player1Rect.x -= 15;
+				}
+					
+			}
+			else if (state[SDL_SCANCODE_RIGHT]){
+				if (player1Rect.x <  SCREEN_WIDTH-BAR_WIDTH-15)
+				{
+					player1Rect.x += 15;
+				}
+			}
+			else if (state[SDL_SCANCODE_UP]){
+				if (player1Rect.y >  SCREEN_HEIGHT/2+BAR_HEIGHT/2)
+				{
+					player1Rect.y -= 15;
+				}
+			}
+			else if (state[SDL_SCANCODE_DOWN]){
+				if (player1Rect.y < SCREEN_HEIGHT-BAR_HEIGHT)
+				{
+					player1Rect.y += 15;
+				}
+			}
+
+
+
+
+			if (touchNum == 5){
+				if (acceX > 0){
+					acceX += 1;
+				}
+				else if ( acceX < 0)
+					acceX -= 1;
+
+
+				if (acceY > 0){
+					acceY += 1;
+				}
+				else if ( acceY < 0)
+					acceY -= 1;
+
+				touchNum = 0;
+			}
+            ballRect.x += acceX;
+            ballRect.y += acceY;
+			
+			if (SDL_HasIntersection(&ballRect, &player1Rect) || SDL_HasIntersection(&ballRect, &player2Rect))
+            {
+				acceY = acceY * -1;
+				acceX = acceX + acceeX;
+				touchNum += 1;
+			}    
+			else if (ballRect.x >= SCREEN_WIDTH || ballRect.x <= 0) {
+                acceX = acceX * -1;
+            	touchNum += 1;
+			}
+            
+			if (ballRect.y >= SCREEN_HEIGHT){
+                player2Point++;
+				acceeX = 5;
+				acceY = 5;
+				cout << "Play 1: " << player1Point << "- " << "Play 2: " << player2Point << endl;
+				ballRect = {215, 390, 20, 20};
+			}
+			if (ballRect.y <= 0 ){
+				player1Point++;
+				acceX = 5;
+				acceY = 5;
+				cout << "Play 1: " << player1Point << " - " << "Play 2: " << player2Point << endl;
+				ballRect = {215, 390, 20, 20};
+			}
+
+            if (ballRect.x != player2Rect.x){
+				if (ballRect.x - player2Rect.x > 18)
+					player2Rect.x += 18;
+				if (ballRect.x - player2Rect.x < 18)
+					player2Rect.x -= 18;
+            }    
+
+            SDL_RenderCopy(gRenderer, gBackground, NULL, &backgroundRect);
+            SDL_RenderFillRect(gRenderer, &player1Rect );
+            SDL_RenderFillRect(gRenderer, &ballRect );
+            SDL_RenderFillRect(gRenderer, &player2Rect);
+
+			// cout << player1Point << " " << player1Point << endl;
+            SDL_RenderPresent(gRenderer);
+
+            Uint32 frameTime = SDL_GetTicks() - startTime;
+            if (frameTime < FRAME_TIME)
+            {
+                SDL_Delay(FRAME_TIME - frameTime);
+            }
+        }              
+}
+
+
 int main( int argc, char* args[] ) {
 	if(!init()) printf( "Failed to initialize!\n" );
 	
@@ -131,18 +265,22 @@ int main( int argc, char* args[] ) {
             close();
             return 0;
         }
-        bool game_running = true;
-        SDL_Event e;
-
-
-
-		if (args[0] != "")
+	}
+	if (args[0] != "")
 		{
-
+			OnePlayer();
 		}
+		else 
+		{
+			TwoPlayer();
+		}
+
+
+
+
+		
 		// 1 player
-
-
+	
 	//Free resources and close SDL
 	close();
 
