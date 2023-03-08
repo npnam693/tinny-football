@@ -12,8 +12,10 @@ const int SCREEN_HEIGHT = 950;
 const int BAR_WIDTH = 100;
 const int BAR_HEIGHT = 20;
 
-const int GOAL_LIMIT_LEFT = SCREEN_WIDTH*0.35;
-const int GOAL_LIMIT_RIGHT = SCREEN_WIDTH*0.65;
+// const int GOAL_LIMIT_LEFT = SCREEN_WIDTH*0.35;
+// const int GOAL_LIMIT_RIGHT = SCREEN_WIDTH*0.65;
+const int GOAL_LIMIT_LEFT = 250;
+const int GOAL_LIMIT_RIGHT = 460;
 
 // const int FIELD_LIMIT_LEFT = SCREEN_WIDTH*0.025;
 // const int FIELD_LIMIT_RIGHT = SCREEN_WIDTH*0.975;
@@ -140,180 +142,197 @@ void OnePlayer()
 	cout << " nothing in here";     
 }
 
-void TwoPlayer() {
+void TwoPlayer() 
+{
 	bool game_running = true;
-        SDL_Event e;
-		int player1Point = 0;
-		int player2Point = 0;
+	SDL_Event e;
+	int player1Point = 0;
+	int player2Point = 0;
 
-        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-        SDL_RenderClear( gRenderer );
-        SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
-        
-        SDL_Rect ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
-        SDL_Rect player1Rect = {15, 910, BAR_WIDTH, BAR_HEIGHT };
-        SDL_Rect player2Rect = {250, 20, BAR_WIDTH, BAR_HEIGHT};
+	SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+	SDL_RenderClear( gRenderer );
+	SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
+	
+	SDL_Rect ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
+	SDL_Rect player1Rect = {400, 910, BAR_WIDTH, BAR_HEIGHT };
+	SDL_Rect player2Rect = {400, 20, BAR_WIDTH, BAR_HEIGHT};
 
-        SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
-                
-        int dx = 5;
-        int dy = 5;
-		int touchNum = 0;
+	SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+	SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
+			
+	int dx = 5;
+	int dy = 5;
+	int touchNum = 0;
+	int acceeX = 0;
+	int acceeY = 0;
 
-        while(game_running) {
-            Uint32 startTime = SDL_GetTicks();
-			const Uint8 *state = SDL_GetKeyboardState(NULL);
+	while(game_running) 
+	{
+		Uint32 startTime = SDL_GetTicks();
+		const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-			int acceeX = 0;
-			int acceeY = 0;
+		
 
-            while( SDL_PollEvent( &e ) != 0 ){
-                if( e.type == SDL_QUIT ) {
-                    game_running = false;
-                }
-            }
-
-			// player 1 moving
-			if (state[SDL_SCANCODE_LEFT]){
-				if (player1Rect.x >  15)
-				{
-					player1Rect.x -= 15;
-				}
-					
+		while( SDL_PollEvent( &e ) != 0 )
+		{
+			if( e.type == SDL_QUIT ) {
+				game_running = false;
 			}
-			else if (state[SDL_SCANCODE_RIGHT]){
-				if (player1Rect.x <  SCREEN_WIDTH-BAR_WIDTH-20)
-				{
-					player1Rect.x += 15;
-				}
+		}
+
+		// player 1 moving
+		if (state[SDL_SCANCODE_LEFT])
+		{
+			if (player1Rect.x >  25)
+			{
+				player1Rect.x -= 15;
 			}
-			else if (state[SDL_SCANCODE_UP]){
-				if (player1Rect.y >  SCREEN_HEIGHT/2+BAR_HEIGHT/2)
-				{
-					player1Rect.y -= 15;
-				}
+				
+		}
+		else if (state[SDL_SCANCODE_RIGHT])
+		{
+			if (player1Rect.x <  SCREEN_WIDTH-BAR_WIDTH-25)
+			{
+				player1Rect.x += 15;
 			}
-			else if (state[SDL_SCANCODE_DOWN]){
-				if (player1Rect.y < SCREEN_HEIGHT-BAR_HEIGHT*2)
-				{
-					player1Rect.y += 15;
-				}
+		}
+		else if (state[SDL_SCANCODE_UP]
+		){
+			if (player1Rect.y >  SCREEN_HEIGHT/2+BAR_HEIGHT/2)
+			{
+				player1Rect.y -= 15;
 			}
-
-
-			// player 2 moving
-			if (state[SDL_SCANCODE_A]){
-				if (player2Rect.x >  15)
-				{
-					player2Rect.x -= 15;
-				}
-					
+		}
+		else if (state[SDL_SCANCODE_DOWN])
+		{
+			if (player1Rect.y < SCREEN_HEIGHT-BAR_HEIGHT*2)
+			{
+				player1Rect.y += 15;
 			}
-			else if (state[SDL_SCANCODE_D]){
-				if (player2Rect.x <  SCREEN_WIDTH-BAR_WIDTH-20)
-				{
-					player2Rect.x += 15;
-				}
+		}
+
+
+		// player 2 moving
+		if (state[SDL_SCANCODE_A])
+		{
+			if (player2Rect.x >  25)
+			{
+				player2Rect.x -= 15;
 			}
-			else if (state[SDL_SCANCODE_W]){
-				if (player2Rect.y > BAR_HEIGHT )
-				{
-					player2Rect.y -= 15;
-				}
+				
+		}
+		else if (state[SDL_SCANCODE_D])
+		{
+			if (player2Rect.x <  SCREEN_WIDTH-BAR_WIDTH-25)
+			{
+				player2Rect.x += 15;
 			}
-			else if (state[SDL_SCANCODE_S]){
-				if (player2Rect.y < SCREEN_HEIGHT/2-BAR_HEIGHT/2)
-				{
-					player2Rect.y += 15;
-				}
+		}
+		else if (state[SDL_SCANCODE_W])
+		{
+			if (player2Rect.y > BAR_HEIGHT )
+			{
+				player2Rect.y -= 15;
 			}
-
-
-			if (touchNum == 5){
-				if (dx > 0){
-					// dx += 1;
-					acceeX += 10;
-				}
-				else if ( dx < 0)
-					// dx -= 1;
-					acceeX -= 10;
-
-
-				if (dy > 0){
-					// dy += 1;
-					acceeY += 10;
-				}
-				else if ( dy < 0)
-					// dy -= 1;
-					acceeY -= 10;
-
-				touchNum = 0;
+		}
+		else if (state[SDL_SCANCODE_S])
+		{
+			if (player2Rect.y < SCREEN_HEIGHT/2-BAR_HEIGHT/2)
+			{
+				player2Rect.y += 15;
 			}
-
-            ballRect.x += dx;
-            ballRect.y += dy;
+		}
 
 
-			// ball moving state
-			if (SDL_HasIntersection(&ballRect, &player1Rect) || SDL_HasIntersection(&ballRect, &player2Rect))
-            {
-				dy = (dy * -1) + acceeY;
-				dx = dx + acceeX;
-				// touchNum += 1;
-			}    
-			else if (ballRect.x >= SCREEN_WIDTH || ballRect.x <= 0) {
-                dx = dx * -1;
-            	// touchNum += 1;
-			}
-			else if (ballRect.y >= SCREEN_HEIGHT || ballRect.y <= 20) {
-				dy = dy * -1;
-			}
-            
-			if (ballRect.y >= SCREEN_HEIGHT && ballRect.x <= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_LEFT){
-                player2Point++;
-				dx = 5;
-				dy = 5;
-				cout << "Play 1: " << player1Point << "- " << "Play 2: " << player2Point << endl;
-				ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
-			}
-			if (ballRect.y <= 0 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT){
-				player1Point++;
-				dx = 5;
-				dy = 5;
-				cout << "Play 1: " << player1Point << " - " << "Play 2: " << player2Point << endl;
-				ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
-			}
 
-            // if (ballRect.x != player2Rect.x){
-			// 	if (ballRect.x - player2Rect.x > 18)
-			// 		player2Rect.x += 18;
-			// 	if (ballRect.x - player2Rect.x < 18)
-			// 		player2Rect.x -= 18;
-            // }    
 
-            SDL_RenderCopy(gRenderer, gBackground, NULL, &backgroundRect);
-            SDL_RenderFillRect(gRenderer, &player1Rect );
-            SDL_RenderFillRect(gRenderer, &ballRect );
-            SDL_RenderFillRect(gRenderer, &player2Rect);
+		//  player get a point and spawn new ball
+		if (ballRect.y >= SCREEN_HEIGHT-20 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT)
+		{
+			player2Point++;
+			dx = 5 * (touchNum%2 ? 1 : (-1) );
+			dy = -5;
+			cout << "Play 1: " << player1Point << "- " << "Play 2: " << player2Point << endl;
+			ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
+		}
+		if (ballRect.y <= 20 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT) 
+		{
+			player1Point++;
+			dx = 5 * (touchNum%2 ? 1 : (-1) );
+			dy = 5;
+			cout << "Play 1: " << player1Point << " - " << "Play 2: " << player2Point << endl;
+			ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
+		}
 
-			// cout << player1Point << " " << player1Point << endl;
-            SDL_RenderPresent(gRenderer);
 
-            Uint32 frameTime = SDL_GetTicks() - startTime;
-            if (frameTime < FRAME_TIME)
-            {
-                SDL_Delay(FRAME_TIME - frameTime);
-            }
-        }         
+		if (touchNum == 5)
+		{
+			if (dx > 0)
+				dx += 3;
+			else 
+				dx -= 3;
+			
+			if (dy > 0)
+				dy += 3;
+			else
+				dy -= 3;
+			touchNum = 0;
+		}
+
+		// update ball moving
+		ballRect.x += dx;
+		ballRect.y += dy;
+
+
+		// ball moving bouncing 
+		if (SDL_HasIntersection(&ballRect, &player1Rect) || SDL_HasIntersection(&ballRect, &player2Rect))
+		{
+			dy = (dy * -1) ;
+			// dx = dx + acceeX;
+			touchNum += 1;
+
+		}
+		    
+		if (ballRect.x >= SCREEN_WIDTH-50 || ballRect.x <= 20)
+		{
+			dx = dx * -1;
+			// touchNum += 1;
+		}
+		else if (ballRect.y >= SCREEN_HEIGHT-25 || ballRect.y <= 25) 
+		{
+			dy = dy * -1;
+			// touchNum += 1;
+		}
+
+		SDL_RenderCopy(gRenderer, gBackground, NULL, &backgroundRect);
+		SDL_RenderFillRect(gRenderer, &player1Rect );
+		SDL_RenderFillRect(gRenderer, &ballRect );
+		SDL_RenderFillRect(gRenderer, &player2Rect);
+
+		// cout << player1Point << " " << player1Point << endl;
+		SDL_RenderPresent(gRenderer);
+
+		Uint32 frameTime = SDL_GetTicks() - startTime;
+		if (frameTime < FRAME_TIME)
+		{
+			SDL_Delay(FRAME_TIME - frameTime);
+		}
+
+		// print some info to check
+		cout << touchNum << "  dx " << dx << "   dy " <<dy << endl ;
+
+	}         
 }
 
 
-int main( int argc, char* args[] ) {
+int main( int argc, char* args[] ) 
+{
 	if(!init()) printf( "Failed to initialize!\n" );
 	
-    else {
-		if(!loadMedia()) { 
+    else 
+	{
+		if(!loadMedia()) 
+		{ 
             close();
             return 0;
         }
