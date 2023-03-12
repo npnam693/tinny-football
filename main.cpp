@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <string>
+#include <ctime>
 
 
 using namespace std;
@@ -35,6 +36,16 @@ bool isAIWin = false;
 void GameManager();
 void OnePlayer();
 void TwoPlayer();
+
+
+int random_int(int min, int max) {
+    // Khởi tạo bộ sinh số ngẫu nhiên
+    srand(time(NULL));
+    // Tạo số ngẫu nhiên
+    int random_num = min + (rand() % (max - min + 1));
+    return random_num;
+}
+
 
 
 //Loads individual image as texture
@@ -253,6 +264,7 @@ void GameManager(){
 
 void OnePlayer()
 {
+	int turn = 0;
 	bool game_running = true;
 	SDL_Event e;
 
@@ -260,17 +272,13 @@ void OnePlayer()
 	int team1Point = 0;
 	int team2Point = 0;
 
-	SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+	// SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 	SDL_RenderClear( gRenderer );
-	SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
-	SDL_Rect ballRect = {215, 390, 20, 20};
-	
-	
-	SDL_Rect team1_player1Rect = {15, 730, BAR_WIDTH, BAR_HEIGHT };
-	SDL_Rect team1_player2Rect = {50, 930, BAR_WIDTH/2, BAR_HEIGHT };
-	int playerActive = 1;
-
-	SDL_Rect team2_playerRect = {250, 0, BAR_WIDTH, BAR_HEIGHT};
+	// SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
+	SDL_Rect ballRect = {215, 390, 25, 25};
+	SDL_Rect team1_player1Rect = {310, 540, BAR_WIDTH, BAR_HEIGHT };
+	SDL_Rect team1_player2Rect = {335, 905, BAR_WIDTH/2, BAR_HEIGHT };
+	SDL_Rect team2_playerRect = {250, 45 - BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT};
 
 	SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 	SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
@@ -278,19 +286,27 @@ void OnePlayer()
 	int dx = 5;
 	int dy = 5;
 	int touchNum = 0;
+	int playerActive = 1;
+	
+	SDL_Texture* ball_img[6];
+    ball_img[1] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball1.png");
+    ball_img[2] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball2.png");
+    ball_img[3] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball3.png");
+    ball_img[4] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball4.png");
+    ball_img[5] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball5.png");
+    ball_img[0] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball6.png");
+
+    // Khởi tạo biến đếm thời gian và frame hiện tại
+    int frame = 0;
+    Uint32 last_time = 0, startTime;
+    const Uint32 frame_delay = 10; // Thời gian chờ giữa các frame (ms)
 
 	while(game_running) {
 		Uint32 startTime = SDL_GetTicks();
 		const Uint8 *state = SDL_GetKeyboardState(NULL);
 		int accX = 0;
-		if(team2Point == 2)isAIWin = true;
-		else if(team1Point == 2)isPlayerWin = true;
-		if(isAIWin || isPlayer1Win){
-			break;
-		}
 		while( SDL_PollEvent( &e ) != 0 ){
 			if( e.type == SDL_QUIT ) {
-				quit = true;
 				game_running = false;
 			}
 			if (e.type == SDL_KEYDOWN){
@@ -299,8 +315,7 @@ void OnePlayer()
 					else playerActive = 1;
 				}
 			}
-			if( e.type == SDL_MOUSEBUTTONDOWN)
-			{
+			if( e.type == SDL_MOUSEBUTTONDOWN){
 				//Get mouse position
 				int x, y;
 				SDL_GetMouseState( &x, &y );
@@ -310,27 +325,21 @@ void OnePlayer()
 
 		if (playerActive == 1) {
 			if (state[SDL_SCANCODE_LEFT] && team1_player1Rect.x > 15)
-			 	team1_player1Rect.x -= 5;
+			 	team1_player1Rect.x -= 6;
 			if (state[SDL_SCANCODE_RIGHT] && team1_player1Rect.x < SCREEN_WIDTH-BAR_WIDTH-15)
-				team1_player1Rect.x += 5;
+				team1_player1Rect.x += 6;
 			if (state[SDL_SCANCODE_UP] && team1_player1Rect.y >  SCREEN_HEIGHT/2+BAR_HEIGHT/2){
-				team1_player1Rect.y -= 8;
+				team1_player1Rect.y -= 6;
 			}
 			if (state[SDL_SCANCODE_DOWN] && team1_player1Rect.y < SCREEN_HEIGHT - (SCREEN_HEIGHT / 4) - BAR_HEIGHT ){
-				team1_player1Rect.y += 8;
+				team1_player1Rect.y += 6;
 			}
 		}
 		else {
-			if (state[SDL_SCANCODE_LEFT] && team1_player2Rect.x > 163)
-			 	team1_player2Rect.x -= 5;
-			if (state[SDL_SCANCODE_RIGHT] && team1_player2Rect.x < 553 - BAR_WIDTH)
-				team1_player2Rect.x += 5;
-			// else if (state[SDL_SCANCODE_UP] && team1_player2Rect.y >  SCREEN_HEIGHT/2+BAR_HEIGHT/2){
-			// 		team1_player2Rect.y -= 8;
-			// }
-			// else if (state[SDL_SCANCODE_DOWN] && team1_player2Rect.y < SCREEN_HEIGHT - (SCREEN_HEIGHT / 4) - BAR_HEIGHT ){
-			// 		team1_player2Rect.y += 8;
-			// }
+			if (state[SDL_SCANCODE_LEFT] && team1_player2Rect.x > 15)
+			 	team1_player2Rect.x -= 6;
+			if (state[SDL_SCANCODE_RIGHT] && team1_player2Rect.x < SCREEN_WIDTH-BAR_WIDTH-15)
+				team1_player2Rect.x += 6;
 		}
 
 		// update position of ball for each frame
@@ -352,10 +361,11 @@ void OnePlayer()
 			touchNum = 0;
 		}
 		// cout << "Gia tri dcua dy: " << dy << "  Gia tri cua touchNum" << touchNum << endl;
+		
+		// handle collision 
+		SDL_Rect result;
 
-
-		// Xac dinh va cham -> tinh toan lai vector van toc
-		if (SDL_HasIntersection(&ballRect, &team1_player1Rect) || SDL_HasIntersection(&ballRect, &team2_playerRect)){
+		if (SDL_IntersectRect(&ballRect, &team1_player1Rect, &result) || SDL_IntersectRect(&ballRect, &team2_playerRect, &result)){
 			dy = dy * -1;
 			touchNum++;
 			if (state[SDL_SCANCODE_LEFT]) {
@@ -367,46 +377,89 @@ void OnePlayer()
 			if (state[SDL_SCANCODE_DOWN]) dy >0 ? dy-- : dy++;
 		}
 		
-		if (SDL_HasIntersection(&ballRect, &team1_player2Rect)){
+		if (SDL_IntersectRect(&ballRect, &team1_player2Rect, &result)){
 			dy = dy * -1;
 			dx = dx + accX;
 			touchNum += 1;
 		}    
-		
-		else if (ballRect.x >= SCREEN_WIDTH || ballRect.x <= 0) {
+		else if (ballRect.x >= SCREEN_WIDTH - 45 - 10 || ballRect.x <= 45) {
 			dx = dx * -1;
-			// touchNum += 1;
+			touchNum += 1;
 		}
 
-		if (ballRect.y >= SCREEN_HEIGHT){
+		// team2 win
+		if (ballRect.y >= SCREEN_HEIGHT - 20){
 			team2Point++;
-			accX = 5;
-			dy = 5;
+			if (turn % 2 ==0)
+				dy = 5;
+			else dy = -5;
+			dx = random_int(3,5);
 			// cout << "Play 1: " << team2Point << "- " << "Play 2: " << team2Point << endl;
-			ballRect = {215, 390, 20, 20};
-		}
-		if (ballRect.y <= 0 ){
-			team2Point++;
-			dx = 5;
-			dy = 5;
-			cout << "Play 1: " << team2Point << " - " << "Play 2: " << team2Point << endl;
-			ballRect = {215, 390, 20, 20};
+			ballRect = {360, 475, 25, 25};
+			turn++;
+			SDL_Delay(1000);
 		}
 		
+		// team 1 win
+		
+		if (ballRect.y <= 0 + 20){
+			team2Point++;
+			dx = random_int(3,5);
+			if (turn % 2 ==0) dy = 5;
+			else dy = -5;
+			// cout << "Play 1: " << team2Point << " - " << "Play 2: " << team2Point << endl;
+			ballRect = {215, 390, 25, 25};
+			turn++;
+			SDL_Delay(1000);
+		}
+
+		// Demo AI
 		if (ballRect.x != team2_playerRect.x && (ballRect.y <= SCREEN_HEIGHT/2 && dy <= 0)){
-			if (ballRect.x - team2_playerRect.x > 20)
-				team2_playerRect.x += 20;
-			if (ballRect.x - team2_playerRect.x < 20)
-				team2_playerRect.x -= 20;
+			if (ballRect.x - team2_playerRect.x > 10 && ballRect.y - team2_playerRect.y > 3)
+				team2_playerRect.x += 10;
+			if (ballRect.x - team2_playerRect.x < 10 && ballRect.y - team2_playerRect.y > 3)
+				team2_playerRect.x -= 10;
 		}    
-
-
-
 		SDL_RenderCopy(gRenderer, gBackground, NULL, &backgroundRect);
-		SDL_RenderFillRect(gRenderer, &team1_player1Rect );
-		SDL_RenderFillRect(gRenderer, &team1_player2Rect );
+		
+		
+		if (playerActive == 1) {
+			SDL_RenderFillRect(gRenderer, &team1_player2Rect );
+			SDL_SetRenderDrawColor( gRenderer, 0, 104, 250, 0xFF );        
+			SDL_RenderFillRect(gRenderer, &team1_player1Rect );
+		}
+		else {
+			SDL_RenderFillRect(gRenderer, &team1_player1Rect );
+			SDL_SetRenderDrawColor( gRenderer, 0, 104, 250, 0xFF );        
+			SDL_RenderFillRect(gRenderer, &team1_player2Rect );
+		}
+		
+		
+		SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
 		SDL_RenderFillRect(gRenderer, &team2_playerRect);
-		SDL_RenderFillRect(gRenderer, &ballRect );
+		
+		
+		// SDL_RenderFillRect(gRenderer, &ballRect );
+
+		// Chọn texture để vẽ lên màn hình dựa trên frame hiện tại
+		if (startTime % 150 <= 25) 
+			SDL_RenderCopy(gRenderer, ball_img[1], NULL, &ballRect);
+		else if (startTime % 150 <= 50)
+			SDL_RenderCopy(gRenderer, ball_img[2], NULL, &ballRect);
+		else if (startTime % 150 <= 75)
+			SDL_RenderCopy(gRenderer, ball_img[3], NULL, &ballRect);
+		else if (startTime % 150 <= 100)
+			SDL_RenderCopy(gRenderer, ball_img[4], NULL, &ballRect);
+		else if (startTime % 150 <= 125)
+			SDL_RenderCopy(gRenderer, ball_img[5], NULL, &ballRect);
+		else
+			SDL_RenderCopy(gRenderer, ball_img[0], NULL, &ballRect);
+		// Cập nhật frame hiện tại
+		frame++;
+		if (frame > 1) {
+			frame = 0;
+		}
+
 		// cout << team2Point << " " << team2Point << endl;
 		SDL_RenderPresent(gRenderer);
 		Uint32 frameTime = SDL_GetTicks() - startTime;
