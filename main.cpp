@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-
+#include <SDL2/SDL_ttf.h>
 
 using namespace std;
 
@@ -37,7 +37,6 @@ void GameManager();
 void OnePlayer();
 void TwoPlayer();
 
-
 int random_int(int min, int max) {
     // Khởi tạo bộ sinh số ngẫu nhiên
     srand(time(NULL));
@@ -45,9 +44,6 @@ int random_int(int min, int max) {
     int random_num = min + (rand() % (max - min + 1));
     return random_num;
 }
-
-
-
 //Loads individual image as texture
 SDL_Texture* loadTexture( std::string path );
 
@@ -116,7 +112,6 @@ bool init() {
 					printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
 					success = false;
 				}
-
 			}
 		}
 	}
@@ -138,7 +133,6 @@ bool loadMedia(string a)
 	return success;
 }
 
-
 void close() {
 	//Free loaded image
 	SDL_DestroyTexture( gTexture );
@@ -151,10 +145,44 @@ void close() {
 	gRenderer = NULL;
 
 	//Quit SDL subsystems
+	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
 }
 
+
+void showResult(int a, int b){
+	TTF_Font* font = TTF_OpenFont("./asset/fonts/fontTest.ttf", 30);
+    SDL_Color color = { 255, 255, 255 };
+	string output = "You \n" + to_string(a) + " - " + to_string(b) + "\n" + " Computer";
+    SDL_Surface* surface = TTF_RenderText_Blended(font, output.c_str(), color);
+    // SDL_Surface* surface = TTF_RenderText_Blended(font, output.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    SDL_Rect dstrect = { 150, 600, surface->w, surface->h };
+	SDL_RenderCopy(gRenderer, texture, NULL, &dstrect);
+}
+
+void showInGameOnePlayer(int a, int b, int time) {
+	TTF_Font* font = TTF_OpenFont("./asset/fonts/fontTest.ttf", 30);
+    SDL_Color color = { 255, 255, 255 };
+	string output = "You \n" + to_string(a) + " - " + to_string(b) + "\n" + " Computer";
+    SDL_Surface* surface = TTF_RenderText_Blended(font, output.c_str(), color);
+    // SDL_Surface* surface = TTF_RenderText_Blended(font, output.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    SDL_Rect dstrect = { 140, 300, surface->w, surface->h };
+
+	font = TTF_OpenFont("./asset/fonts/fontTest.ttf", 50);
+    SDL_Surface* surface1 = TTF_RenderText_Blended(font, to_string(time).c_str(), color);
+    // SDL_Surface* surface = TTF_RenderText_Blended(font, output.c_str(), color);
+    SDL_Texture* texture1 = SDL_CreateTextureFromSurface(gRenderer, surface1);
+    SDL_Rect dstrect1 = { 320, 680, surface1->w, surface1->h };
+
+	SDL_RenderCopy(gRenderer, texture, NULL, &dstrect);
+	SDL_RenderCopy(gRenderer, texture1, NULL, &dstrect1);
+}
+
+int global_team1Point = 0;
+int global_team2Point = 0;
 
 void GameManager(){
 	//Start up SDL and create window
@@ -199,6 +227,7 @@ void GameManager(){
 							}
 						}
 					}
+
 					if(isAIWin){
 						gBackground = loadTexture("Screen/Ai.PNG");
 						if(SDL_MOUSEBUTTONDOWN == e.type){
@@ -208,18 +237,26 @@ void GameManager(){
 								if((x >= 257 && x <= 464) && (y >= 387 && y <= 452)){
 									gBackground = loadTexture("Screen/start.PNG");
 									isAIWin = false;
+									global_team1Point = 0;
+									global_team2Point = 0;
+									break;
 								}
 							}
 						}
+
+
 					}
 					else if(isPlayerWin){
 						gBackground = loadTexture("Screen/p.PNG");
+						showResult(global_team1Point, global_team2Point);
 						if(SDL_BUTTON_LEFT == e.button.button){
 							int x,y;
 							SDL_GetMouseState(&x, &y);
 							if((x >= 257 && x <= 464) && (y >= 387 && y <= 452)){
 								gBackground = loadTexture("Screen/start.PNG");
 								isPlayerWin = false;
+								global_team1Point = 0;
+								global_team2Point = 0;
 							}
 						}
 					}
@@ -252,15 +289,19 @@ void GameManager(){
 				//Render texture to screen
 				SDL_RenderCopy( gRenderer, gBackground, NULL, NULL );
 
+				if (isAIWin || isPlayerWin) 
+					showResult(global_team1Point, global_team2Point);
+				
+
 				//Update screen
 				SDL_RenderPresent( gRenderer );
 			}
 		}
 			
 	}
-
-
 }
+
+
 
 void OnePlayer()
 {
@@ -268,7 +309,6 @@ void OnePlayer()
 	bool game_running = true;
 	SDL_Event e;
 
-	
 	int team1Point = 0;
 	int team2Point = 0;
 
@@ -282,6 +322,8 @@ void OnePlayer()
 
 	SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 	SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
+    
+	TTF_Init();
 
 	int dx = 5;
 	int dy = 5;
@@ -289,20 +331,21 @@ void OnePlayer()
 	int playerActive = 1;
 	
 	SDL_Texture* ball_img[6];
-    ball_img[1] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball1.png");
-    ball_img[2] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball2.png");
-    ball_img[3] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball3.png");
-    ball_img[4] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball4.png");
-    ball_img[5] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball5.png");
-    ball_img[0] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball6.png");
+    ball_img[1] = IMG_LoadTexture(gRenderer,"../asset//img/ball_sprite_sheet/ball1.png");
+    ball_img[2] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball2.png");
+    ball_img[3] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball3.png");
+    ball_img[4] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball4.png");
+    ball_img[5] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball5.png");
+    ball_img[0] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball6.png");
 
     // Khởi tạo biến đếm thời gian và frame hiện tại
     int frame = 0;
-    Uint32 last_time = 0, startTime;
+    Uint32 last_time = 0, currentTime;
     const Uint32 frame_delay = 10; // Thời gian chờ giữa các frame (ms)
-
+	int countdown = 10;
+	Uint32 startTime = SDL_GetTicks();
 	while(game_running) {
-		Uint32 startTime = SDL_GetTicks();
+		Uint32 currentTime = SDL_GetTicks();
 		const Uint8 *state = SDL_GetKeyboardState(NULL);
 		int accX = 0;
 		while( SDL_PollEvent( &e ) != 0 ){
@@ -322,6 +365,16 @@ void OnePlayer()
 				cout << x << " " << y;
 			}
 		}
+		Uint32 timePassed = currentTime - startTime;
+        Uint32 timeLeft = countdown * 1000 - timePassed; 
+		cout << timeLeft << endl;
+		if (timePassed >= countdown*1000) {
+			if (team1Point > team2Point) isAIWin = true;
+			else isPlayerWin= true;
+			global_team1Point = team1Point;
+			global_team2Point = team2Point;
+            game_running = false;
+        }
 
 		if (playerActive == 1) {
 			if (state[SDL_SCANCODE_LEFT] && team1_player1Rect.x > 15)
@@ -347,16 +400,10 @@ void OnePlayer()
 		ballRect.y += dy;
 
 		if (touchNum == 5){
-			// if (dx > 0){
-			// 	dx += 1;
-			// }
-			// else if ( dx < 0)
-			// 	dx -= 1;
 			if (dy > 0){
 				dy += 1;
 			}
-			else if ( dy < 0)
-				dy -= 1;
+			else if ( dy < 0) dy -= 1;
 			cout << "Tang toc do: " << dy << " " << endl;
 			touchNum = 0;
 		}
@@ -398,13 +445,14 @@ void OnePlayer()
 			// cout << "Play 1: " << team2Point << "- " << "Play 2: " << team2Point << endl;
 			ballRect = {360, 475, 20, 20};
 			turn++;
+
+
+
 			SDL_Delay(1000);
 		}
-		
 		// team 1 win
-		
 		if (ballRect.y <= 0 + 20){
-			team2Point++;
+			team1Point++;
 			dx = random_int(3,5);
 			if (turn % 2 ==0) dy = 5;
 			else dy = -5;
@@ -423,7 +471,6 @@ void OnePlayer()
 		}    
 		SDL_RenderCopy(gRenderer, gBackground, NULL, &backgroundRect);
 		
-		
 		if (playerActive == 1) {
 			SDL_RenderFillRect(gRenderer, &team1_player2Rect );
 			SDL_SetRenderDrawColor( gRenderer, 0, 104, 250, 0xFF );        
@@ -435,23 +482,24 @@ void OnePlayer()
 			SDL_RenderFillRect(gRenderer, &team1_player2Rect );
 		}
 		
-		
 		SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
 		SDL_RenderFillRect(gRenderer, &team2_playerRect);
+		// SDL_RenderCopy(gRenderer, texture, NULL, &dstrect);
 		
-		
+		showInGameOnePlayer(team1Point,team2Point, timeLeft/1000);
+
 		// SDL_RenderFillRect(gRenderer, &ballRect );
 
 		// Chọn texture để vẽ lên màn hình dựa trên frame hiện tại
-		if (startTime % 150 <= 25) 
+		if (currentTime % 120 <= 20) 
 			SDL_RenderCopy(gRenderer, ball_img[1], NULL, &ballRect);
-		else if (startTime % 150 <= 50)
+		else if (currentTime % 120 <= 40)
 			SDL_RenderCopy(gRenderer, ball_img[2], NULL, &ballRect);
-		else if (startTime % 150 <= 75)
+		else if (currentTime % 120 <= 60)
 			SDL_RenderCopy(gRenderer, ball_img[3], NULL, &ballRect);
-		else if (startTime % 150 <= 100)
+		else if (currentTime % 120 <= 80)
 			SDL_RenderCopy(gRenderer, ball_img[4], NULL, &ballRect);
-		else if (startTime % 150 <= 125)
+		else if (currentTime % 120 <= 100)
 			SDL_RenderCopy(gRenderer, ball_img[5], NULL, &ballRect);
 		else
 			SDL_RenderCopy(gRenderer, ball_img[0], NULL, &ballRect);
@@ -460,31 +508,27 @@ void OnePlayer()
 		if (frame > 1) {
 			frame = 0;
 		}
-
 		// cout << team2Point << " " << team2Point << endl;
 		SDL_RenderPresent(gRenderer);
-		Uint32 frameTime = SDL_GetTicks() - startTime;
+		Uint32 frameTime = SDL_GetTicks() - currentTime;
 		if (frameTime < FRAME_TIME){
 			SDL_Delay(FRAME_TIME - frameTime);
 		}
 	}              
 }
-
 void TwoPlayer(){
 	bool game_running = true;
 	SDL_Event e;
 	int player1Point = 0;
 	int player2Point = 0;
 
-
-
 	SDL_Texture* ball_img[6];
-    ball_img[1] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball1.png");
-    ball_img[2] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball2.png");
-    ball_img[3] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball3.png");
-    ball_img[4] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball4.png");
-    ball_img[5] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball5.png");
-    ball_img[0] = IMG_LoadTexture(gRenderer,"./img/ball_sprite_sheet/ball6.png");
+    ball_img[2] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball2.png");
+    ball_img[3] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball3.png");
+    ball_img[4] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball4.png");
+    ball_img[1] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball1.png");
+    ball_img[5] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball5.png");
+    ball_img[0] = IMG_LoadTexture(gRenderer,"./asset/img/ball_sprite_sheet/ball6.png");
 
     int frame = 0;
     Uint32 last_time = 0, startTime;
@@ -674,8 +718,6 @@ void TwoPlayer(){
 			frame = 0;
 		}
 
-
-
 		// cout << player1Point << " " << player1Point << endl;
 		SDL_RenderPresent(gRenderer);
 
@@ -690,7 +732,6 @@ void TwoPlayer(){
 
 	}         
 }
-
 
 int main( int argc, char* args[] ) {
 	GameManager();	
