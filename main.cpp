@@ -4,6 +4,7 @@
 #include <string>
 #include <ctime>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 using namespace std;
 
@@ -32,6 +33,11 @@ bool isPlayer1Win = false;
 bool isPlayer2Win = false;
 bool isPlayerWin = false;
 bool isAIWin = false;
+
+
+Mix_Chunk* sound = NULL;
+Mix_Music* music = NULL;
+
 
 void GameManager();
 void OnePlayer();
@@ -72,7 +78,7 @@ SDL_Texture* loadTexture( std::string path ) {
 			printf( "Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError() );
 		}
 
-		//Get rid of old loaded surface
+		//Get rid of old l	oaded surface
 		SDL_FreeSurface( loadedSurface );
 	}
 	return newTexture;
@@ -85,8 +91,25 @@ bool init() {
 		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
 		success = false;
 	}
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+	}
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+		printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+
 	else {
 		//Create window
+		music = Mix_LoadMUS("./asset/sound/match_play.wav");
+		if (music == NULL) {
+			printf("Failed to load sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		}	
+
+		sound = Mix_LoadWAV("./asset/sound/kickball_cut.wav");
+		if (sound == NULL) {
+			printf("Failed to load sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		}	
 		gWindow = SDL_CreateWindow( "Tinny Football", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL ) {
 			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
@@ -130,6 +153,8 @@ bool loadMedia(string a)
 		printf( "Unable to load image", SDL_GetError() );
 		success = false;
 	}
+
+
 	return success;
 }
 
@@ -198,7 +223,14 @@ void GameManager(){
 			printf( "Failed to load media!\n" );
 		}
 		else
-		{	
+		{
+
+
+			if (Mix_PlayMusic(music, -1)) {
+    			printf("Failed to play sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+			}
+			Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+
 			//Event handler
 			SDL_Event e;
 
@@ -416,7 +448,7 @@ void OnePlayer()
 			dy = dy * -1;
 			ballRect.y += dy * 4;
 			touchNum++;
-			
+			Mix_PlayChannel(-1, sound, 0);
 			if (state[SDL_SCANCODE_LEFT]) {
 				dx--;
 				cout << "huhu";
@@ -429,6 +461,7 @@ void OnePlayer()
 		if (SDL_IntersectRect(&ballRect, &team1_player2Rect, &result)){
 			dy = dy * -1;
 			touchNum += 1;
+			Mix_PlayChannel(-1, sound, 0);
 		}    
 		else if (ballRect.x >= SCREEN_WIDTH - 45 - 10 || ballRect.x <= 45) {
 			dx = dx * -1;
