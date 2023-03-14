@@ -37,6 +37,7 @@ bool isAIWin = false;
 
 Mix_Chunk* sound = NULL;
 Mix_Music* music = NULL;
+Mix_Chunk* bouncing = NULL;
 
 
 void GameManager();
@@ -103,6 +104,11 @@ bool init() {
 		//Create window
 		music = Mix_LoadMUS("./asset/sound/match_play.wav");
 		if (music == NULL) {
+			printf("Failed to load sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		}	
+
+		bouncing = Mix_LoadWAV("./asset/sound/bouncing.wav");
+		if (bouncing == NULL) {
 			printf("Failed to load sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		}	
 
@@ -466,6 +472,7 @@ void OnePlayer()
 		else if (ballRect.x >= SCREEN_WIDTH - 45 - 10 || ballRect.x <= 45) {
 			dx = dx * -1;
 			touchNum += 1;
+			Mix_PlayChannel(-1, bouncing, 0);
 		}
 
 		// team2 win
@@ -679,7 +686,7 @@ void TwoPlayer(){
 			cout << "Play 1: " << player1Point << "- " << "Play 2: " << player2Point << endl;
 			ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
 		}
-		if (ballRect.y <= 25 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT) 
+		if (ballRect.y <= 35 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT) 
 		{
 			player1Point++;
 			dx = random_int(3,5)*(touchNum%2 ==0 ? 1 : (-1));
@@ -722,11 +729,13 @@ void TwoPlayer(){
 		{
 			dx = dx * -1;
 			// touchNum += 1;
+			Mix_PlayChannel(-1, bouncing, 0);
 		}
 		else if (ballRect.y >= SCREEN_HEIGHT-50 || ballRect.y <= 35) 
 		{
 			dy = dy * -1;
 			// touchNum += 1;
+			Mix_PlayChannel(-1, bouncing, 0);
 		}
 
 		SDL_RenderCopy(gRenderer, gBackground, NULL, &backgroundRect);
