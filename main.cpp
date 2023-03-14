@@ -409,9 +409,9 @@ void OnePlayer()
         }
 
 		if (playerActive == 1) {
-			if (state[SDL_SCANCODE_LEFT] && team1_player1Rect.x > 15)
+			if (state[SDL_SCANCODE_LEFT] && team1_player1Rect.x > 45)
 			 	team1_player1Rect.x -= 6;
-			if (state[SDL_SCANCODE_RIGHT] && team1_player1Rect.x < SCREEN_WIDTH-BAR_WIDTH-15)
+			if (state[SDL_SCANCODE_RIGHT] && team1_player1Rect.x < SCREEN_WIDTH-BAR_WIDTH-45)
 				team1_player1Rect.x += 6;
 			if (state[SDL_SCANCODE_UP] && team1_player1Rect.y >  SCREEN_HEIGHT/2+BAR_HEIGHT/2){
 				team1_player1Rect.y -= 6;
@@ -421,9 +421,9 @@ void OnePlayer()
 			}
 		}
 		else {
-			if (state[SDL_SCANCODE_LEFT] && team1_player2Rect.x > 15)
+			if (state[SDL_SCANCODE_LEFT] && team1_player2Rect.x > 45)
 			 	team1_player2Rect.x -= 6;
-			if (state[SDL_SCANCODE_RIGHT] && team1_player2Rect.x < SCREEN_WIDTH-BAR_WIDTH-15)
+			if (state[SDL_SCANCODE_RIGHT] && team1_player2Rect.x < SCREEN_WIDTH-BAR_WIDTH-45)
 				team1_player2Rect.x += 6;
 		}
 
@@ -474,7 +474,7 @@ void OnePlayer()
 			if (turn % 2 ==0)
 				dy = 5;
 			else dy = -5;
-			dx = random_int(3,5);
+			dx = random_int(3,5)*(touchNum%2 ==0 ? 1 : (-1));
 			// cout << "Play 1: " << team2Point << "- " << "Play 2: " << team2Point << endl;
 			ballRect = {360, 475, 20, 20};
 			turn++;
@@ -486,7 +486,7 @@ void OnePlayer()
 		// team 1 win
 		if (ballRect.y <= 0 + 20){
 			team1Point++;
-			dx = random_int(3,5);
+			dx = random_int(3,5)*(touchNum%2 ==0 ? 1 : (-1));
 			if (turn % 2 ==0) dy = 5;
 			else dy = -5;
 			// cout << "Play 1: " << team2Point << " - " << "Play 2: " << team2Point << endl;
@@ -573,8 +573,8 @@ void TwoPlayer(){
 	SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
 	
 	SDL_Rect ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
-	SDL_Rect player1Rect = {400, 910, BAR_WIDTH, BAR_HEIGHT };
-	SDL_Rect player2Rect = {400, 20, BAR_WIDTH, BAR_HEIGHT};
+	SDL_Rect player1Rect = {400, 890, BAR_WIDTH, BAR_HEIGHT };
+	SDL_Rect player2Rect = {400, 50, BAR_WIDTH, BAR_HEIGHT};
 
 	SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 	SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );        
@@ -607,7 +607,7 @@ void TwoPlayer(){
 		// player 1 moving
 		if (state[SDL_SCANCODE_LEFT])
 		{
-			if (player1Rect.x >  25)
+			if (player1Rect.x >  45)
 			{
 				player1Rect.x -= 6;
 			}
@@ -615,7 +615,7 @@ void TwoPlayer(){
 		}
 	 	if (state[SDL_SCANCODE_RIGHT])
 		{
-			if (player1Rect.x <  SCREEN_WIDTH-BAR_WIDTH-25)
+			if (player1Rect.x <  SCREEN_WIDTH-BAR_WIDTH-45)
 			{
 				player1Rect.x += 6;
 			}
@@ -629,7 +629,7 @@ void TwoPlayer(){
 		}
 	 	if (state[SDL_SCANCODE_DOWN])
 		{
-			if (player1Rect.y < SCREEN_HEIGHT-BAR_HEIGHT*2)
+			if (player1Rect.y < SCREEN_HEIGHT-100)
 			{
 				player1Rect.y += 6;
 			}
@@ -639,7 +639,7 @@ void TwoPlayer(){
 		// player 2 moving
 		if (state[SDL_SCANCODE_A])
 		{
-			if (player2Rect.x >  25)
+			if (player2Rect.x >  45)
 			{
 				player2Rect.x -= 6;
 			}
@@ -647,14 +647,14 @@ void TwoPlayer(){
 		}
 		else if (state[SDL_SCANCODE_D])
 		{
-			if (player2Rect.x <  SCREEN_WIDTH-BAR_WIDTH-25)
+			if (player2Rect.x <  SCREEN_WIDTH-BAR_WIDTH-45)
 			{
 				player2Rect.x += 6;
 			}
 		}
 		else if (state[SDL_SCANCODE_W])
 		{
-			if (player2Rect.y > BAR_HEIGHT )
+			if (player2Rect.y > 45 )
 			{
 				player2Rect.y -= 6;
 			}
@@ -671,18 +671,18 @@ void TwoPlayer(){
 
 
 		//  player get a point and spawn new ball
-		if (ballRect.y >= SCREEN_HEIGHT-35 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT)
+		if (ballRect.y >= SCREEN_HEIGHT-40 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT)
 		{
 			player2Point++;
-			dx =random_int(3,5);
+			dx = random_int(3,5)*(touchNum%2 ==0 ? 1 : (-1));
 			dy = -5;
 			cout << "Play 1: " << player1Point << "- " << "Play 2: " << player2Point << endl;
 			ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
 		}
-		if (ballRect.y <= 30 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT) 
+		if (ballRect.y <= 25 && ballRect.x >= GOAL_LIMIT_LEFT && ballRect.x <= GOAL_LIMIT_RIGHT) 
 		{
 			player1Point++;
-			dx =random_int(3,5);
+			dx = random_int(3,5)*(touchNum%2 ==0 ? 1 : (-1));
 			dy = 5;
 			cout << "Play 1: " << player1Point << " - " << "Play 2: " << player2Point << endl;
 			ballRect = {SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 20, 20};
@@ -714,15 +714,16 @@ void TwoPlayer(){
 			dy = (dy * -1) ;
 			// dx = dx + acceeX;
 			touchNum += 1;
+			Mix_PlayChannel(-1, sound, 0);
 
 		}
 		    
-		if (ballRect.x >= SCREEN_WIDTH-50 || ballRect.x <= 25)
+		if (ballRect.x >= SCREEN_WIDTH-60 || ballRect.x <= 45)
 		{
 			dx = dx * -1;
 			// touchNum += 1;
 		}
-		else if (ballRect.y >= SCREEN_HEIGHT-30 || ballRect.y <= 25) 
+		else if (ballRect.y >= SCREEN_HEIGHT-50 || ballRect.y <= 35) 
 		{
 			dy = dy * -1;
 			// touchNum += 1;
