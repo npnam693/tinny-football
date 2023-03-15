@@ -230,8 +230,6 @@ void GameManager(){
 		}
 		else
 		{
-
-
 			if (Mix_PlayMusic(music, -1)) {
     			printf("Failed to play sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 			}
@@ -355,7 +353,7 @@ void OnePlayer()
 	// SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );        
 	SDL_Rect ballRect = {215, 390, 20, 20};
 	SDL_Rect team1_player1Rect = {310, 540, BAR_WIDTH, BAR_HEIGHT };
-	SDL_Rect team1_player2Rect = {335, 905, BAR_WIDTH/2, BAR_HEIGHT };
+	SDL_Rect team1_player2Rect = {335, 905, BAR_WIDTH - 30, BAR_HEIGHT };
 	SDL_Rect team2_playerRect = {250, 45 - BAR_HEIGHT, BAR_WIDTH, BAR_HEIGHT};
 
 	SDL_Rect backgroundRect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
@@ -380,7 +378,7 @@ void OnePlayer()
     int frame = 0;
     Uint32 last_time = 0, currentTime;
     const Uint32 frame_delay = 10; // Thời gian chờ giữa các frame (ms)
-	int countdown = 10;
+	int countdown = 30;
 	Uint32 startTime = SDL_GetTicks();
 	while(game_running) {
 		Uint32 currentTime = SDL_GetTicks();
